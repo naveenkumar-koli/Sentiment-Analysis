@@ -1,7 +1,20 @@
+# Web Framework
 fastapi
 uvicorn
+jinja2
+python-multipart
+
+# Data & ML
 pandas
 numpy
 scikit-learn
+
+# NLP
 nltk
-python-multipart
+
+# File handling
+openpyxl
+aiofiles
+
+# Validation
+pydantic

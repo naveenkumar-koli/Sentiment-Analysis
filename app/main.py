@@ -26,9 +26,9 @@ import uuid
 from .utils import preprocess_text
 
 # Initialize NLTK data
-nltk.download('punkt')
-nltk.download('wordnet')
-nltk.download('stopwords')
+nltk.download('wordnet', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt_tab', quiet=True)
 
 # Preprocessing handled by preprocess_text() from utils.py
 
@@ -53,7 +53,7 @@ if not static_path.exists():
 app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 # Mount templates
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 
 class SentimentResponse(BaseModel):
@@ -105,7 +105,7 @@ def predict_sentiment_enhanced(text: str) -> SentimentResponse:
     X = vectorizer.transform([cleaned_text])
     proba = model.predict_proba(X)[0]
     pred = model.predict(X)[0]
-    sentiment = encoder.inverse_transform([pred])[0]
+    sentiment = encoder.inverse_transform([pred])[0].lower()
     confidence = float(np.max(proba))
 
     return SentimentResponse(
@@ -116,12 +116,9 @@ def predict_sentiment_enhanced(text: str) -> SentimentResponse:
 
 
 def get_sentiment_emoji(sentiment):
-    emoji_map = {
-        'positive': 'Ã°Å¸ËœÅ ',
-        'negative': 'Ã°Å¸ËœÅ¾',
-        'neutral': 'Ã°Å¸ËœÂ'
-    }
-    return emoji_map.get(sentiment.lower(), 'Ã°Å¸ËœÂ')
+    return ""
+
+
 
 
 def get_confidence_color(confidence):
@@ -195,35 +192,25 @@ async def read_root(request: Request):
 
 
 @app.post("/analyze")
-async def analyze_text(request: Request, text: str = Form(...)):
+async def analyze_text(text: str = Form(...)):
+    """
+    Analyze the sentiment of a given text and return a JSON response.
+    - **text**: The input text to analyze
+    """
     try:
         result = predict_sentiment_enhanced(text)
-        # Generate session ID for single analysis
         session_id = str(uuid.uuid4())
-
-        return templates.TemplateResponse("index.html", {
-            "request": request,
-            "single_result": result,
+        return JSONResponse(content={
+            "session_id": session_id,
             "input_text": text,
-            "session_id": session_id,  # Add this line
-            "batch_result": False,
-            "data": [],
-            "total_records": 0,
-            "page": 1,
-            "total_pages": 0,
-            "companies": [],
-            "selected_company": "",
-            "search_query": "",
-            "selected_sentiment": "",
-            "company_stats": {},
-            "overall_stats": {},
-            "sentiment_pie_data": {},
-            "company_pie_data": {}
+            "sentiment": result.sentiment,
+            "confidence": round(result.confidence, 4),
+            "method": result.method
         })
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content={"message": f"Error analyzing text: {str(e)}"}
+            content={"success": False, "message": f"Error analyzing text: {str(e)}"}
         )
 
 from fastapi import File, UploadFile, Request
@@ -279,7 +266,6 @@ async def batch_analyze(request: Request, file: UploadFile = File(...)):
         df["Sentiment"] = sentiments
         df["Confidence"] = confidences
         df["Method"] = methods
-        df["Emoji"] = df["Sentiment"].apply(get_sentiment_emoji)
         df["Confidence_Color"] = df["Confidence"].apply(get_confidence_color)
 
         # Store processed data globally
@@ -342,7 +328,6 @@ async def add_remark(company: str = Form(...), opportunity: str = Form(...), rem
         new_row['Sentiment'] = result.sentiment
         new_row['Confidence'] = result.confidence
         new_row['Method'] = result.method
-        new_row['Emoji'] = get_sentiment_emoji(result.sentiment)
         new_row['Confidence_Color'] = get_confidence_color(result.confidence)
 
         # Append new row to processed data
@@ -371,7 +356,6 @@ async def add_remark(company: str = Form(...), opportunity: str = Form(...), rem
                 'Sentiment': result.sentiment,
                 'Confidence': result.confidence,
                 'Method': result.method,
-                'Emoji': get_sentiment_emoji(result.sentiment),
                 'Confidence_Color': get_confidence_color(result.confidence)
             },
             "updated_stats": {
@@ -798,10 +782,10 @@ async def download_single_analysis_log(
                 if len(df) > 0:
                     summary_data = {
                         'Total Analyses': [len(df)],
-                        'Positive Sentiments': [len(df[df.get('sentiment', '') == 'positive'])],
-                        'Negative Sentiments': [len(df[df.get('sentiment', '') == 'negative'])],
-                        'Neutral Sentiments': [len(df[df.get('sentiment', '') == 'neutral'])],
-                        'Total Edits': [len(df[df.get('action', '') == 'sentiment_edit'])]
+                        'Positive Sentiments': [int((df['sentiment'] == 'positive').sum()) if 'sentiment' in df.columns else 0],
+                        'Negative Sentiments': [int((df['sentiment'] == 'negative').sum()) if 'sentiment' in df.columns else 0],
+                        'Neutral Sentiments': [int((df['sentiment'] == 'neutral').sum()) if 'sentiment' in df.columns else 0],
+                        'Total Edits': [int((df['action'] == 'sentiment_edit').sum()) if 'action' in df.columns else 0],
                     }
                     summary_df = pd.DataFrame(summary_data)
                     summary_df.to_excel(writer, sheet_name='Summary', index=False)
@@ -969,5 +953,5 @@ async def bulk_analyze_file(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8024)
 
