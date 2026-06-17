@@ -3,7 +3,7 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 
 nltk.download('wordnet', quiet=True)
-nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
 
 lemmatizer = WordNetLemmatizer()
 

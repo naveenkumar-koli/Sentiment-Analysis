@@ -7,7 +7,7 @@ python-multipart
 # Data & ML
 pandas
 numpy
-scikit-learn
+scikit-learn==1.7.0
 
 # NLP
 nltk

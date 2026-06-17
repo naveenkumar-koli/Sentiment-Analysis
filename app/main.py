@@ -751,7 +751,7 @@ async def save_single_analysis(
 
 @app.get("/download_single_analysis_log")
 async def download_single_analysis_log(
-        format: str = Query("excel", regex="^(excel|csv)$"),
+        format: str = Query("excel", pattern="^(excel|csv)$"),
         session_id: Optional[str] = Query(None)
 ):
     """Download analysis log as Excel or CSV"""
