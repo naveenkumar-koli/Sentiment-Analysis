@@ -25,8 +25,19 @@ Thumbs.db
 app/nltk_data/
 app/nltk_data_lean/
 
-# ─── ML Model Files (too large for GitHub >100MB) ─────
-app/models/
+# ─── ML Model Files ───────────────────────────────────
+# Block ONLY the heavy fine-tuned DeBERTa model (541 MB)
+app/models/deberta_sales_v1/
+
+# Block loose pkl/model files directly inside app/ root
+app/*.pkl
+app/*.model
+
+# Allow small logistic pkl files inside app/models/ (tracked)
+!app/models/New_Updated_Models/
+!app/models/New_Updated_Models/*.pkl
+!app/models/New_Updated_Models/*.model
+!app/models/*.pkl
 
 # ─── Office / Data Files ──────────────────────────────
 *.docx
