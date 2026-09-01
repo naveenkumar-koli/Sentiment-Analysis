@@ -1,5 +1,48 @@
+# ─── Virtual Environment ──────────────────────────────
 .venv/
-.idea/
+venv/
+env/
+
+# ─── Python Cache ─────────────────────────────────────
 __pycache__/
 *.pyc
+*.pyo
+
+# ─── Build & Distribution (PyInstaller output) ────────
+dist/
+build/
+*.egg-info/
+
+# ─── IDE / Editor ─────────────────────────────────────
+.idea/
+.vscode/
+
+# ─── OS Junk ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── NLTK Data ────────────────────────────────────────
 app/nltk_data/
+app/nltk_data_lean/
+
+# ─── ML Model Files (too large for GitHub >100MB) ─────
+app/models/
+
+# ─── Office / Data Files ──────────────────────────────
+*.docx
+*.xlsx
+*.xls
+*.csv
+
+# ─── Spec files (PyInstaller) ─────────────────────────
+*.spec
+
+# ─── Reports ──────────────────────────────────────────
+reports/
+
+# ─── Jupyter Checkpoints ──────────────────────────────
+.ipynb_checkpoints/
+
+# ─── Logs ─────────────────────────────────────────────
+*.log
+*.tmp
