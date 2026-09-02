@@ -1,5 +1,53 @@
+# ─── Virtual Environment ──────────────────────────────
 .venv/
-.idea/
+venv/
+env/
+
+# ─── Python Cache ─────────────────────────────────────
 __pycache__/
 *.pyc
+*.pyo
+
+# ─── Build & Distribution (PyInstaller output) ────────
+dist/
+build/
+*.egg-info/
+
+# ─── IDE / Editor ─────────────────────────────────────
+.idea/
+.vscode/
+
+# ─── OS Junk ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── NLTK Data ────────────────────────────────────────
 app/nltk_data/
+app/nltk_data_lean/
+
+# ─── ML Model Files ───────────────────────────────────
+# Block heavy fine-tuned DeBERTa model (541 MB)
+app/models/deberta_sales_v1/
+
+# Block loose pkl/model files directly inside app/ root
+app/*.pkl
+app/*.model
+
+# Track small logistic pkl files inside app/models/
+!app/models/New_Updated_Models/
+!app/models/New_Updated_Models/*.pkl
+!app/models/New_Updated_Models/*.model
+
+# ─── Office / Extra Data Files ────────────────────────
+*.docx
+*.xlsx
+*.xls
+
+# ─── Spec files (PyInstaller) ─────────────────────────
+*.spec
+
+# ─── Reports & Temporary Files ────────────────────────
+reports/
+.ipynb_checkpoints/
+*.log
+*.tmp
